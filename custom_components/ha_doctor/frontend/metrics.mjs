@@ -29,6 +29,7 @@ export function pick(metric,states,override){
   if(['cpu_temp','gpu_temp'].includes(metric)&&unit&&!['°c','°f','c','f'].includes(unit))continue;
   const exact=candidates.some(k=>key===k||key.endsWith('_'+k));
   const matches=candidates.some(k=>key.includes(k));
+  if(!exact && !matches)continue;
   const score=(exact?100:matches?45:0)+(key.startsWith('system_monitor_')?20:0);
   if(score>bestScore){best=e;bestScore=score;}
  }

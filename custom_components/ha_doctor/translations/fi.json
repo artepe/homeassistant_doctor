@@ -1,0 +1,13 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "HA Doctor",
+        "description": "Lisää HA Doctor -vikadiagnostiikka ja laitteistovalvonta Home Assistantin sivupalkkiin. Ei pilvitiliä tai erillistä tunnusta."
+      }
+    },
+    "abort": {
+      "already_configured": "HA Doctor on jo asennettu."
+    }
+  }
+}

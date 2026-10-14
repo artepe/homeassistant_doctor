@@ -1,0 +1,13 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "HA Doctor",
+        "description": "Install the HA Doctor diagnostics and hardware monitoring sidebar panel. No cloud or tokens required."
+      }
+    },
+    "abort": {
+      "already_configured": "HA Doctor is already installed."
+    }
+  }
+}

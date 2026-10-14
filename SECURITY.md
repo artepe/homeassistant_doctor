@@ -13,3 +13,7 @@ A Home Assistant token provides access to the home. HA Doctor only uses authenti
 The separate `--cleanup` mode **can delete entity-registry entries** after explicit selection and typed confirmation. No entities are selected by default. It never edits Home Assistant's `.storage` files or purges recorder data. The local UI binds to `127.0.0.1`, validates `Host` and `Origin`, requires anti-CSRF tokens and rechecks entity state and identity before deletion. A 0600 metadata audit is created before writes. **This audit is not a system backup or undo**; obtain a real HA backup before cleanup. Use an administrator token only with trusted systems.
 
 The running process holds the access token in memory. Never expose the cleanup browser through a reverse proxy or port-forward; this tool is meant for localhost on your own computer.
+
+## HA Doctor sidebar (v0.3.0)
+
+The dashboard panel requires an HA administrator account, uses HA's existing session and sensor data, and does not store API tokens. Bulk cleanup uses administrator-only config/entity_registry/remove calls, with explicit selection, a typed confirmation and per-entity revalidation. The JSON metadata export is not a full Home Assistant backup; create a complete backup first.

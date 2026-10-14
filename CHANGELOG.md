@@ -1,5 +1,12 @@
 # Changelog
 
+## v0.3.0 — System Lab & HACS sidebar
+
+- Native HACS-installable HA Doctor integration and sidebar panel.
+- Auto-detected CPU, RAM, disk, CPU temperature, optional GPU, swap, uptime, and network telemetry.
+- Current-state sensor health and administrator-only confirmed bulk registry cleanup with JSON metadata export and revalidation.
+- No additional credentials or cloud service required by the sidebar.
+
 ## v0.2.0 (2026-10-14)
 
 - Opt-in localhost Sensor Cleanup browser UI with search, individual checkboxes, and "Select all visible"

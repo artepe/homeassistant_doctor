@@ -1,0 +1,17 @@
+{
+  "domain": "ha_doctor",
+  "name": "HA Doctor",
+  "version": "0.3.0",
+  "documentation": "https://github.com/artepe/homeassistant_doctor",
+  "issue_tracker": "https://github.com/artepe/homeassistant_doctor/issues",
+  "codeowners": [
+    "@artepe"
+  ],
+  "dependencies": [
+    "frontend",
+    "panel_custom"
+  ],
+  "config_flow": true,
+  "iot_class": "local_push",
+  "integration_type": "service"
+}

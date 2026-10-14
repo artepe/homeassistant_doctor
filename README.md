@@ -4,9 +4,9 @@
 
 **Because “unavailable” is not a diagnosis.**
 
-**Local diagnostics + optional, deliberately confirmed sensor cleanup.**
+**Local diagnostics, native HA sidebar, hardware monitoring and deliberately confirmed sensor cleanup.**
 
-[Quick start](#quick-start) · [Sensor Cleanup](#sensor-cleanup--bulk-removal) · [Security](#security) · [Roadmap](#roadmap)
+[Sidebar installation](#hacs-installation-recommended) · [Quick start](#quick-start) · [Sensor Cleanup](#sensor-cleanup--bulk-removal) · [Security](#security) · [Roadmap](#roadmap)
 
 </div>
 
@@ -25,7 +25,40 @@
 - 🔒 **Diagnostics remain read-only:** The separate Sensor Cleanup interface allows registry deletions only after review and typed confirmation.
 - 🪶 **Runs anywhere with Python 3.10+:** macOS, Linux, Windows, a Raspberry Pi or a machine that can reach Home Assistant.
 
-> **v0.2.0 / MVP:** This is an **external CLI**, not a HACS integration or a native Home Assistant dashboard. It reports symptoms and plausible next steps, **not guaranteed root causes**. Home Assistant already has per-integration diagnostics downloads; HA Doctor complements rather than replaces them.
+> **v0.3.0:** Now includes an installable Home Assistant sidebar custom integration as well as the optional external CLI. Neither identifies root causes with certainty.
+
+## Home Assistant sidebar + Raspberry Pi System Lab (v0.3.0)
+
+**New:** HA Doctor installs as a real Home Assistant custom integration and adds **HA Doctor** to the sidebar. It runs locally without an external Python daemon, API token, or cloud account. The original CLI remains available separately.
+
+### HACS installation (recommended)
+1. Open **HACS** → menu **⋮** → **Custom repositories**.
+2. Add https://github.com/artepe/homeassistant_doctor and select **Integration**.
+3. Download **HA Doctor** from HACS and **restart Home Assistant**.
+4. Go to **Settings → Devices & services → Add integration → HA Doctor**, then confirm.
+5. Open **HA Doctor** in the left sidebar (or visit /ha-doctor).
+
+**Without HACS:** copy the folder custom_components/ha_doctor to /config/custom_components/ha_doctor, restart Home Assistant, then add HA Doctor from Devices & services. Do not copy the unrelated CLI folder ha_doctor.
+
+### Show real Raspberry Pi metrics
+Install Home Assistant's built-in **System Monitor** integration from **Settings → Devices & services → Add integration → System Monitor**.
+
+**Important:** System Monitor's diagnostic sensors are **disabled by default**. Enable *Processor use*, *Memory usage (%)*, *Disk use (%)*, *Processor temperature* (if available), optionally *Swap use (%)*, *Last boot*, *Memory free/use*, and network throughput sensors. Then open **HA Doctor → Mittarilähteet** if you need to map a particular entity manually.
+
+For **Raspberry Pi 5**, GPU load and GPU temperature do **not** come from System Monitor by default. The GPU cards show **—** unless you expose real, separate Home Assistant GPU sensors. The software never invents readings. In HA OS, disk and CPU measurements can represent the environment/mount monitored by the integration, not necessarily every host filesystem.
+
+### Sensor Cleanup in the sidebar
+- Inspect live unavailable, unknown, or empty sensor.* entities, search and select individually or **select all visible**.
+- Optionally include registry entries missing from current states. They may be intentionally disabled, so this is **off by default**.
+- Export local JSON entity registry metadata and take a **full Home Assistant backup** before deletion.
+- Removing selected entities requires an HA administrator account and typing **DELETE N**. The panel rechecks registry entries and each entity's live state before attempting removal, skipping anything that recovered.
+- The action only removes entity registry entries via Home Assistant's supported WebSocket API. It does **not** delete history, fix connectivity, or prevent active integrations from recreating sensors. Nothing is deleted automatically.
+
+The sidebar provides **live current-state diagnostics**. For historical flapping detection, logging-pattern analysis and advanced reporting, use the existing command-line HA Doctor below.
+
+### Suomeksi
+HACS → **Custom repositories** → lisää tämä GitHub-osoite tyypillä *Integration* → lataa **HA Doctor** → käynnistä Home Assistant uudelleen → **Asetukset → Laitteet ja palvelut → Lisää integraatio → HA Doctor**. Sivupalkkiin ilmestyy **HA Doctor**. Asenna lisäksi **System Monitor** ja ota mittarit erikseen käyttöön.
+
 
 ## Quick start
 

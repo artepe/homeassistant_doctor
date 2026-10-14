@@ -1,0 +1,5 @@
+"""HA Doctor constants."""
+DOMAIN = "ha_doctor"
+VERSION = "0.3.0"
+PANEL_PATH = "ha-doctor"
+PANEL_URL = "/ha_doctor_static"

@@ -1,6 +1,6 @@
-import {sameRegistryIdentity,test} from 'node:test';
+import {test} from 'node:test';
 import assert from 'node:assert/strict';
-import {esc,badSensors,isBad,missingRegistry,pick,read,uptime} from '../custom_components/ha_doctor/frontend/metrics.mjs';
+import {esc,badSensors,isBad,missingRegistry,pick,read,uptime,sameRegistryIdentity} from '../custom_components/ha_doctor/frontend/metrics.mjs';
 const ent=(id,state,unit='')=>({entity_id:id,state:String(state),attributes:{unit_of_measurement:unit}});
 test('unavailable and unknown only on sensor.*',()=>{
  const states={'sensor.a':ent('sensor.a','unavailable'),'sensor.b':ent('sensor.b','unknown'),'sensor.c':ent('sensor.c',12),'binary_sensor.d':ent('binary_sensor.d','unavailable')};

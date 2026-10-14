@@ -29,6 +29,31 @@
 
 ## Quick start
 
+### macOS — copy/paste installation
+
+Open **Terminal** and run this from any folder:
+
+```bash
+cd ~/Downloads
+git clone https://github.com/artepe/homeassistant_doctor.git
+cd homeassistant_doctor
+python3 --version
+python3 -m ha_doctor --demo --html demo.html
+open demo.html
+```
+
+This launches the **offline demo**. It does not connect to your real Home Assistant. If the repository is already cloned, skip `git clone` and navigate into the existing `homeassistant_doctor` folder. Python **3.10 or newer** is required.
+
+To check a real Home Assistant instance on your local network, create a **Long-Lived Access Token** from your HA user profile and run the following command from the same project folder:
+
+```bash
+python3 -m ha_doctor --url http://homeassistant.local:8123 --observe 60 --interval 5 --html report.html
+open report.html
+```
+
+The program will prompt for the token privately in Terminal. Replace the Home Assistant URL with your IP address if the hostname does not resolve.
+
+
 ### 1. Get Python 3.10 or newer
 
 Download/extract this repository and open a terminal inside the folder. You can run directly without installing dependencies:

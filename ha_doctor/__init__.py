@@ -1,2 +1,2 @@
-"""HA Doctor — local, read-only Home Assistant diagnostic reports."""
-__version__ = "0.1.0"
+"""HA Doctor — local Home Assistant diagnostics and opt-in sensor registry cleanup."""
+__version__ = "0.2.0"

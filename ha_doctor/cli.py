@@ -1,4 +1,4 @@
-"""Command-line diagnostics (no writes to HA, no external packages)."""
+"""CLI diagnostics plus explicit opt-in local sensor registry cleanup."""
 import argparse
 import getpass
 from datetime import datetime, timezone
@@ -25,6 +25,9 @@ def parser():
     p.add_argument("--no-logs", action="store_true", help="Skip the optional error log check")
     p.add_argument("--html", metavar="PATH", help="Write interactive offline HTML report")
     p.add_argument("--json", metavar="PATH", help="Write machine-readable JSON report")
+    p.add_argument("--cleanup", action="store_true", help="Open localhost sensor cleanup UI (opt-in write operations)")
+    p.add_argument("--cleanup-no-browser", action="store_true", help="Print local cleanup UI URL without opening browser")
+    p.add_argument("--cleanup-port", type=int, default=0, help="Local UI port, 0 chooses a free ephemeral port")
     p.add_argument("--version", action="version", version=f"HA Doctor {__version__}")
     return p
 
@@ -33,6 +36,23 @@ def main(argv=None):
     args = parser().parse_args(argv)
     if args.observe < 0 or args.interval < 1 or args.stale_hours <= 0:
         parser().error("--observe must be >= 0, --interval >= 1 and --stale-hours > 0")
+    if args.cleanup:
+        if args.demo or not 0 <= args.cleanup_port < 65536:
+            parser().error("--cleanup cannot run with --demo; cleanup port must be 0..65535")
+        if not args.url:
+            parser().error("Specify --url or HA_URL for --cleanup")
+        token = os.getenv("HA_TOKEN", "")
+        if not token and sys.stdin.isatty():
+            token = getpass.getpass("Home Assistant admin access token (input hidden): ")
+        if not token:
+            parser().error("Set HA_TOKEN or use Terminal to enter an admin token")
+        try:
+            from .cleanup_ui import serve_cleanup
+            return serve_cleanup(HAClient(args.url, token), port=args.cleanup_port,
+                                 open_browser=not args.cleanup_no_browser)
+        except (DoctorConnectionError, OSError, ValueError) as err:
+            print(f"HA Doctor cleanup error: {err}", file=sys.stderr)
+            return 2
     if args.demo:
         snapshots = create_demo()
         cfg = {"version": "demo (synthetic)"}

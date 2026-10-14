@@ -4,14 +4,17 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "ha-doctor-diagnostics"
-version = "0.1.0"
-description = "A local, read-only Home Assistant diagnostics CLI and offline dashboard"
+version = "0.2.0"
+description = "Local Home Assistant diagnostics and explicitly confirmed sensor registry cleanup"
 readme = "README.md"
 requires-python = ">=3.10"
 license = {text = "MIT"}
 authors = [{name = "artepe"}]
 keywords = ["home-assistant", "diagnostics", "iot", "health-check", "troubleshooting"]
 classifiers = ["Development Status :: 3 - Alpha", "Programming Language :: Python :: 3", "License :: OSI Approved :: MIT License"]
+
+[project.optional-dependencies]
+cleanup = ["websocket-client>=1.7,<2"]
 
 [project.scripts]
 ha-doctor = "ha_doctor.cli:main"

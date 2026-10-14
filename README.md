@@ -4,15 +4,15 @@
 
 **Because “unavailable” is not a diagnosis.**
 
-**A local, read-only Home Assistant troubleshooting tool.**
+**Local diagnostics + optional, deliberately confirmed sensor cleanup.**
 
-[Quick start](#quick-start) · [What it checks](#what-it-checks) · [Security](#security) · [Roadmap](#roadmap)
+[Quick start](#quick-start) · [Sensor Cleanup](#sensor-cleanup--bulk-removal) · [Security](#security) · [Roadmap](#roadmap)
 
 </div>
 
 ---
 
-![HA Doctor example dashboard with synthetic data](assets/preview.svg)
+![HA Doctor example dashboard with synthetic data](assets/preview.png)
 
 **HA Doctor** helps Home Assistant users diagnose state outages without manually scrolling through thousands of entities or digging through the entire error log.
 
@@ -22,37 +22,12 @@
 - ⏱ **Stale data checks:** Opt in to expected reporting intervals for specific entities. Uses **`last_reported`**, not `last_changed`.
 - 🧠 **Guided next steps:** Recommendations for common log patterns (integration setup, blocked event loop, rate limits, recorder, networking).
 - 🌐 **Interactive offline HTML report:** Open in any browser. No cloud dashboard, external scripts, trackers or external libraries.
-- 🔒 **Read only by design:** Only HTTP GET; never writes states, calls HA services, restarts anything or changes configurations.
+- 🔒 **Diagnostics remain read-only:** The separate Sensor Cleanup interface allows registry deletions only after review and typed confirmation.
 - 🪶 **Runs anywhere with Python 3.10+:** macOS, Linux, Windows, a Raspberry Pi or a machine that can reach Home Assistant.
 
-> **v0.1.0 / MVP:** This is an **external CLI**, not a HACS integration or a native Home Assistant dashboard. It reports symptoms and plausible next steps, **not guaranteed root causes**. Home Assistant already has per-integration diagnostics downloads; HA Doctor complements rather than replaces them.
+> **v0.2.0 / MVP:** This is an **external CLI**, not a HACS integration or a native Home Assistant dashboard. It reports symptoms and plausible next steps, **not guaranteed root causes**. Home Assistant already has per-integration diagnostics downloads; HA Doctor complements rather than replaces them.
 
 ## Quick start
-
-### macOS — copy/paste installation
-
-Open **Terminal** and run this from any folder:
-
-```bash
-cd ~/Downloads
-git clone https://github.com/artepe/homeassistant_doctor.git
-cd homeassistant_doctor
-python3 --version
-python3 -m ha_doctor --demo --html demo.html
-open demo.html
-```
-
-This launches the **offline demo**. It does not connect to your real Home Assistant. If the repository is already cloned, skip `git clone` and navigate into the existing `homeassistant_doctor` folder. Python **3.10 or newer** is required.
-
-To check a real Home Assistant instance on your local network, create a **Long-Lived Access Token** from your HA user profile and run the following command from the same project folder:
-
-```bash
-python3 -m ha_doctor --url http://homeassistant.local:8123 --observe 60 --interval 5 --html report.html
-open report.html
-```
-
-The program will prompt for the token privately in Terminal. Replace the Home Assistant URL with your IP address if the hostname does not resolve.
-
 
 ### 1. Get Python 3.10 or newer
 
@@ -87,6 +62,43 @@ py -m ha_doctor --html report.html
 When prompted, enter your access token (the input is hidden). For unattended jobs, you can instead set `HA_TOKEN` as an environment variable. Open the generated **`report.html`** in your browser. The tool uses the same address and access method as your browser (local network, VPN, etc.). If mDNS doesn't work, use your HA IP address or your configured HTTPS hostname.
 
 You can alternatively install the command (`pip install .`) and run `ha-doctor` instead of `python3 -m ha_doctor`.
+
+## Sensor Cleanup — bulk removal
+
+**v0.2.0** adds a separate, **opt-in localhost browser interface** to review and delete multiple suspected broken or empty sensor registry entries in one operation. **Normal diagnostics are unchanged and read-only.** This feature is not part of the offline diagnostics HTML report; it runs a local web server so the Home Assistant token never goes to the page.
+
+### macOS copy/paste installation
+
+With [Python 3.10+](https://www.python.org/downloads/) installed, open macOS **Terminal**:
+
+```bash
+cd ~/Downloads
+git clone https://github.com/artepe/homeassistant_doctor.git
+cd homeassistant_doctor
+python3 -m venv .venv
+.venv/bin/python -m pip install -e '.[cleanup]'
+.venv/bin/python -m ha_doctor --cleanup --url http://homeassistant.local:8123
+```
+
+If the repository already exists on your Mac, open its folder and run `git pull` instead of cloning a second time. Use the Home Assistant LAN IP instead of `homeassistant.local` when mDNS does not resolve. On Windows, activate a venv or use `py -m pip install -e '.[cleanup]'` followed by `py -m ha_doctor --cleanup --url ...`.
+
+The terminal prompts for a **Home Assistant administrator long-lived access token** (hidden input). Your browser automatically opens an address such as `http://127.0.0.1:52341/`; copy the printed URL if it does not. The UI listens **only on your Mac's loopback interface**, not on your LAN. Keep the Terminal running while using it. Press Ctrl+C to stop.
+
+### What you can review and remove
+
+- **Missing:** Registry entry exists, but there is no corresponding live entity state. Could be a disconnected or temporarily unavailable integration.
+- **Empty:** Live state is blank, `null`, or `None`.
+- **Unknown:** Current HA state is `unknown`.
+- **Unavailable:** Current HA state is `unavailable`.
+- **Domain restriction:** Only `sensor.*` and `binary_sensor.*` from the *entity registry*. Disabled entities are intentionally excluded; `0`, `on`, `off`, and other healthy values are not considered empty.
+
+Use search to filter by integration, ID, or reason; choose **Select all visible** or mark individual sensors. Every checkbox starts unchecked. Click **Preview selected for removal** to review. To commit you must **type `DELETE N`**, where `N` is the number of selected candidates, and click the final deletion button. Without that exact confirmation, **nothing is removed**.
+
+Immediately before the edit, HA Doctor re-reads states and entity registry data and **skips entities that recovered or were replaced**. It writes a restricted-permission JSON metadata **audit file** under `~/.ha-doctor/cleanup-backups/` *before* the first deletion. If it cannot write the audit file, deletion is aborted. The log is **not a restorable Home Assistant backup**.
+
+**Important safety limitations:** `unknown`, `unavailable`, empty, and missing are *symptoms*, **not evidence that an entity is obsolete**. A reboot, network outage, device sleep, or an integration initialization can create these states temporarily. Removing an active entity can break automations and dashboards, and the owning integration may recreate it. **Create a full Home Assistant backup in Settings → System → Backups before proceeding.** The removal only affects entity registry entries; it does not purge recorder history, delete devices or uninstall integrations. It is not possible to delete registry-less YAML entities this way. This bulk action needs admin credentials and cannot automatically undo deletion.
+
+Technical implementation: the UI connects with the [Home Assistant WebSocket API](https://developers.home-assistant.io/docs/api/websocket/) using `config/entity_registry/list` and `config/entity_registry/remove`. Its optional dependency is `websocket-client`. Local form requests use an unpredictable anti-CSRF token, localhost-only binding and a second unique confirmation token.
 
 ## The useful checks
 
@@ -134,27 +146,28 @@ An exit code of `0` **does not guarantee** that Home Assistant has no problems.
 
 ## Security
 
-- Uses only authenticated GET endpoints: `/api/states`, `/api/config` and optional `/api/error_log`.
+- **Diagnostic mode** uses only authenticated GET endpoints: `/api/states`, `/api/config` and optional `/api/error_log`. **Cleanup mode** additionally uses authenticated WebSocket registry list/remove (with explicit confirmation).
 - Does not send telemetry, analytics or reports to anyone.
 - Does not follow HTTP redirects with an access token.
 - Verifies HTTPS certificates by default; **does not include an insecure TLS bypass option**.
-- Never embeds the token into the report; accepts credentials only from environment variables.
+- Never embeds the token into the report or local cleanup HTML; accepts credentials via hidden Terminal prompt or environment variable.
 - Does not persist the raw log. Nevertheless, **entity IDs and version information in reports can be personal**. Review before posting a report publicly.
 - A Home Assistant long-lived access token may have broader permissions than this program needs. Treat it as a secret and revoke it if compromised.
 - Run only against a Home Assistant server you administer or are authorized to access.
 
-No destructive “repair” shortcuts: HA Doctor will never automatically delete a database, restart integrations, reset devices or modify automations.
+No automatic destructive repair: HA Doctor never automatically deletes registry entries, resets devices, modifies automations or purges history. Sensor Cleanup requires manual selection plus explicit typed confirmation.
 
 ## How it works
 
 Home Assistant's documented [REST API](https://developers.home-assistant.io/docs/api/rest/) exposes state objects and current-session errors. HA Doctor samples those states, compares entity availability across samples, then creates a human-readable report. The [Home Assistant state docs](https://www.home-assistant.io/docs/configuration/state_object/) describe the difference between `last_changed`, `last_updated` and `last_reported`.
 
-The name *integration* appears in the guidance, but this MVP does **not** map entities to owning integrations. That requires additional registry lookups beyond the current REST-only checks.
+The diagnostic report does not map each entity to its integration. The **separate Sensor Cleanup tool** uses WebSocket registry metadata, including `platform`, to show which integration created a registered entity.
 
 ## Roadmap
 
 - [ ] Home Assistant custom integration/HACS installation with repairs and native dashboard sensors
-- [ ] WebSocket-assisted registry mapping: group outages by integration/config entry
+- [x] Separate WebSocket-powered sensor registry inventory and deliberately confirmed bulk cleanup
+- [ ] WebSocket-assisted mapping of *diagnostic outages* by integration/config entry
 - [ ] Continuous historical event recording with a bounded local database
 - [ ] Configurable rules for safe alerts and suggested fixes
 - [ ] Recorder, CPU/memory/storage diagnostics via appropriately authorized APIs/integrations
@@ -169,6 +182,6 @@ Feature requests and bug reports welcome — please include the tool version, HA
 python3 -m unittest discover -s tests -v
 ```
 
-No optional dependency is needed to run the application or its tests. See `CONTRIBUTING.md`.
+No optional dependency is needed for diagnostics or unit tests; the cleanup UI needs `websocket-client` installed via `pip install -e ".[cleanup]"`. See `CONTRIBUTING.md`.
 
 MIT licensed © 2026 artepe.

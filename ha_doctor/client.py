@@ -1,4 +1,4 @@
-"""Small, dependency-free REST API client with safe redirect and response limits."""
+"""Dependency-free REST API client used by read-only diagnostics and cleanup scans."""
 
 import json
 import ssl

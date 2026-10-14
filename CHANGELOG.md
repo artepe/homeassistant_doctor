@@ -1,5 +1,15 @@
 # Changelog
 
+## v0.2.0 (2026-10-14)
+
+- Opt-in localhost Sensor Cleanup browser UI with search, individual checkboxes, and "Select all visible"
+- Find empty, unknown, unavailable and state-less registered `sensor` / `binary_sensor` entities
+- Safeguards: no preselected items, preview, exact typed DELETE N confirmation, 10-minute single-use plan, anti-CSRF checks
+- Revalidate entity IDs, registry identity and live problem state immediately before deletion; skip recovered entries
+- Audit metadata JSON saved as a 0600 file before first registry removal (not a restorable HA backup)
+- Uses admin-only Home Assistant entity registry WebSocket remove command, without direct `.storage` edits
+- Separate `cleanup` optional dependency; regular diagnostics remain dependency-free and read-only
+
 ## v0.1.0 (2026-10-14)
 
 Initial runnable MVP:

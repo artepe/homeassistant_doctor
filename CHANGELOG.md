@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.3.1 — Delete reliability patch (2026-10-14)
+- Preserve DELETE N input during background Home Assistant updates.
+- Explain denied permissions; verify registry identity to prevent deleting replacements.
+- Refresh registry after removal and report entities that immediately reappear.
+
 ## v0.3.0 — System Lab & HACS sidebar
 
 - Native HACS-installable HA Doctor integration and sidebar panel.

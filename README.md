@@ -25,9 +25,9 @@
 - 🔒 **Diagnostics remain read-only:** The separate Sensor Cleanup interface allows registry deletions only after review and typed confirmation.
 - 🪶 **Runs anywhere with Python 3.10+:** macOS, Linux, Windows, a Raspberry Pi or a machine that can reach Home Assistant.
 
-> **v0.3.0:** Now includes an installable Home Assistant sidebar custom integration as well as the optional external CLI. Neither identifies root causes with certainty.
+> **v0.3.1:** Now includes an installable Home Assistant sidebar custom integration as well as the optional external CLI. Neither identifies root causes with certainty.
 
-## Home Assistant sidebar + Raspberry Pi System Lab (v0.3.0)
+## Home Assistant sidebar + Raspberry Pi System Lab (v0.3.1)
 
 **New:** HA Doctor installs as a real Home Assistant custom integration and adds **HA Doctor** to the sidebar. It runs locally without an external Python daemon, API token, or cloud account. The original CLI remains available separately.
 
@@ -48,6 +48,8 @@ Install Home Assistant's built-in **System Monitor** integration from **Settings
 For **Raspberry Pi 5**, GPU load and GPU temperature do **not** come from System Monitor by default. The GPU cards show **—** unless you expose real, separate Home Assistant GPU sensors. The software never invents readings. In HA OS, disk and CPU measurements can represent the environment/mount monitored by the integration, not necessarily every host filesystem.
 
 ### Sensor Cleanup in the sidebar
+
+**v0.3.1:** Fixes a Delete confirmation field reset during frequent HA state updates, displays missing-admin errors, revalidates registry identity and reloads the registry after deletion. Steps: choose sensors → **Tarkista poistettavat** → download metadata JSON → type exact `DELETE N` (e.g. `DELETE 3`) → **Poista valitut**. Take a separate full HA backup first. An active integration may recreate the entity.
 - Inspect live unavailable, unknown, or empty sensor.* entities, search and select individually or **select all visible**.
 - Optionally include registry entries missing from current states. They may be intentionally disabled, so this is **off by default**.
 - Export local JSON entity registry metadata and take a **full Home Assistant backup** before deletion.

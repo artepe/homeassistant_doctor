@@ -1,4 +1,4 @@
-import {test} from 'node:test';
+import {sameRegistryIdentity,test} from 'node:test';
 import assert from 'node:assert/strict';
 import {esc,badSensors,isBad,missingRegistry,pick,read,uptime} from '../custom_components/ha_doctor/frontend/metrics.mjs';
 const ent=(id,state,unit='')=>({entity_id:id,state:String(state),attributes:{unit_of_measurement:unit}});
@@ -27,3 +27,10 @@ test('uptime placeholder and clock arithmetic',()=>{
  assert.equal(uptime(null),'—');
 });
 test('escapes HTML and quotes',()=>assert.equal(esc('<img x="1">'),'&lt;img x=&quot;1&quot;&gt;'));
+
+test('bulk delete refuses replacement registry entry',()=>{
+ const a={entity_id:'sensor.bad',unique_id:'one',platform:'demo',config_entry_id:'a'};
+ assert.equal(sameRegistryIdentity(a,{...a,name:'new label'}),true);
+ assert.equal(sameRegistryIdentity(a,{...a,unique_id:'two'}),false);
+ assert.equal(sameRegistryIdentity(a,{...a,config_entry_id:'b'}),false);
+});

@@ -44,3 +44,9 @@ export function read(metric,ent){
  return (metric==='cpu_temp'||metric==='gpu_temp')&&['°f','f'].includes(unit)?(n-32)*5/9:n;
 }
 export function uptime(ms){if(!Number.isFinite(ms))return '—';let s=Math.max(0,Math.floor((Date.now()-ms)/1000));return Math.floor(s/86400)+'d '+Math.floor((s%86400)/3600)+'h '+Math.floor((s%3600)/60)+'m';}
+
+/** Avoid removing a replacement which reused an existing entity_id. */
+export function sameRegistryIdentity(before, after){
+ if(!before||!after||before.entity_id!==after.entity_id)return false;
+ return ['unique_id','platform','config_entry_id','device_id'].every(k=>(before[k]??null)===(after[k]??null));
+}

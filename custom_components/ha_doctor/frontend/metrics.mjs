@@ -5,7 +5,7 @@ export const METRICS={
  cpu_temp:['processor_temperature','cpu_temperature','cpu_temp','soc_temperature'],
  gpu:['gpu_usage','gpu_utilization','gpu_load'],gpu_temp:['gpu_temperature','gpu_temp'],
  swap:['swap_use_percent','swap_usage_percent'],mem_free:['memory_free'],mem_used:['memory_use','memory_used'],
- last_boot:['last_boot','system_uptime'],net_in:['network_throughput_in','download_speed'],
+ last_boot:['last_boot','uptime'],net_in:['network_throughput_in','download_speed'],
  net_out:['network_throughput_out','upload_speed']
 };
 export const BAD=new Set(['unavailable','unknown','']);
@@ -19,7 +19,7 @@ export function isBad(id,states){return !!states?.[id]&&badSensors({[id]:states[
 export function missingRegistry(registry,states){return (registry||[]).filter(r=>r.entity_id?.startsWith('sensor.')&&!states?.[r.entity_id])
  .map(r=>({id:r.entity_id,name:r.name||r.original_name||r.entity_id,state:'missing',changed:'',disabled_by:r.disabled_by}));}
 export function pick(metric,states,override){
- if(override&&states?.[override]?.entity_id?.startsWith('sensor.'))return states[override];
+ if(override)return states?.[override]?.entity_id?.startsWith('sensor.')?states[override]:null;
  let best=null,bestScore=0;
  for(const e of Object.values(states||{})){
   if(!e?.entity_id?.startsWith('sensor.'))continue;
@@ -49,4 +49,20 @@ export function uptime(ms){if(!Number.isFinite(ms))return '—';let s=Math.max(0
 export function sameRegistryIdentity(before, after){
  if(!before||!after||before.entity_id!==after.entity_id)return false;
  return ['unique_id','platform','config_entry_id','device_id'].every(k=>(before[k]??null)===(after[k]??null));
+}
+
+/** Registry-backed recommendations include disabled sensors and renamed entity IDs. */
+export function monitorCandidates(metric, registry, states){
+ if(['gpu','gpu_temp'].includes(metric))return [];
+ return (registry||[]).filter(r=>r.platform==='systemmonitor'&&r.entity_id?.startsWith('sensor.')).map(r=>{
+  const live=states?.[r.entity_id];
+  const identity=[r.entity_id.slice(7),r.unique_id,r.original_name].filter(Boolean).join('_').toLowerCase().replace(/[^a-z0-9]+/g,'_');
+  const aliases=METRICS[metric]||[];
+  const matches=aliases.some(k=>identity.includes(k));
+  // Memory use must not select the percentage sensor; network throughput must not select counters.
+  if(!matches)return null;
+  if(metric==='mem_used'&&/percent|percentage|usage/.test(identity))return null;
+  if(['net_in','net_out'].includes(metric)&&!identity.includes('throughput'))return null;
+  return {...r,live,score:(r.disabled_by?0:100)+(live&&!BAD.has(live.state)?50:0)};
+ }).filter(Boolean).sort((a,b)=>b.score-a.score||a.entity_id.localeCompare(b.entity_id));
 }

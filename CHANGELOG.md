@@ -1,3 +1,9 @@
+## 0.4.0
+- Guided metric source dropdowns with live values and registry-backed System monitor recommendations, including disabled sensors.
+- Explicit activation of selected System monitor sensors, integration setup link and registry refresh.
+- Preserve unsaved metric selections during HA updates; do not silently replace missing explicit sources.
+- Cache-bust the frontend helper module on upgrade.
+
 # Changelog
 
 ## v0.3.1 — Delete reliability patch (2026-10-14)

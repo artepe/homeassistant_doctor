@@ -27,7 +27,7 @@
 
 > **v0.3.1:** Now includes an installable Home Assistant sidebar custom integration as well as the optional external CLI. Neither identifies root causes with certainty.
 
-## Home Assistant sidebar + Raspberry Pi System Lab (v0.3.1)
+## Home Assistant sidebar + Raspberry Pi System Lab (v0.4.0)
 
 **New:** HA Doctor installs as a real Home Assistant custom integration and adds **HA Doctor** to the sidebar. It runs locally without an external Python daemon, API token, or cloud account. The original CLI remains available separately.
 
@@ -46,6 +46,9 @@ Install Home Assistant's built-in **System Monitor** integration from **Settings
 **Important:** System Monitor's diagnostic sensors are **disabled by default**. Enable *Processor use*, *Memory usage (%)*, *Disk use (%)*, *Processor temperature* (if available), optionally *Swap use (%)*, *Last boot*, *Memory free/use*, and network throughput sensors. Then open **HA Doctor → Mittarilähteet** if you need to map a particular entity manually.
 
 For **Raspberry Pi 5**, GPU load and GPU temperature do **not** come from System Monitor by default. The GPU cards show **—** unless you expose real, separate Home Assistant GPU sensors. The software never invents readings. In HA OS, disk and CPU measurements can represent the environment/mount monitored by the integration, not necessarily every host filesystem.
+
+### Guided metric selection (v0.4.0)
+Open **HA Doctor → Mittarilähteet**. The panel reads the entity registry and offers dropdowns with sensor names, entity IDs and values, including disabled System monitor sensors. Click **Etsi Raspberry Pi:n mittarit** to suggest registry-backed System monitor sources; check the disk and network interface when several exist. Choose a disabled candidate and click **Ota valittu anturi käyttöön** (administrator required), then **Tallenna**. **Lisää System monitor** opens Home Assistant's integration setup. Sensor activation is explicit and limited to that integration. GPU sources still require real separate sensors. Mappings remain local to each browser; renamed/missing explicit sources show no reading instead of silently switching to another device.
 
 ### Sensor Cleanup in the sidebar
 

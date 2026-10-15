@@ -1,7 +1,7 @@
 {
   "domain": "ha_doctor",
   "name": "HA Doctor",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "documentation": "https://github.com/artepe/homeassistant_doctor",
   "issue_tracker": "https://github.com/artepe/homeassistant_doctor/issues",
   "codeowners": [

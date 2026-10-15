@@ -1,3 +1,12 @@
+# Changelog
+
+## v0.4.1 - Cleanup verification and disable mode
+
+- Differentiate registry deletion from persistent disabling (`disabled_by: user`).
+- Verify actual registry state after every batch; report re-created, skipped, failed and unverified entities separately.
+- Prevent edits if a sensor recovered or its registry identity changed.
+- Add nine frontend unit tests for cleanup behavior.
+
 ## 0.4.0
 - Guided metric source dropdowns with live values and registry-backed System monitor recommendations, including disabled sensors.
 - Explicit activation of selected System monitor sensors, integration setup link and registry refresh.

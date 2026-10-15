@@ -25,7 +25,7 @@
 - 🔒 **Diagnostics remain read-only:** The separate Sensor Cleanup interface allows registry deletions only after review and typed confirmation.
 - 🪶 **Runs anywhere with Python 3.10+:** macOS, Linux, Windows, a Raspberry Pi or a machine that can reach Home Assistant.
 
-> **v0.3.1:** Now includes an installable Home Assistant sidebar custom integration as well as the optional external CLI. Neither identifies root causes with certainty.
+ > **v0.4.1:** Verified bulk cleanup with a separate disable option for entities recreated by active integrations.
 
 ## Home Assistant sidebar + Raspberry Pi System Lab (v0.4.0)
 
@@ -223,3 +223,10 @@ python3 -m unittest discover -s tests -v
 No optional dependency is needed for diagnostics or unit tests; the cleanup UI needs `websocket-client` installed via `pip install -e ".[cleanup]"`. See `CONTRIBUTING.md`.
 
 MIT licensed © 2026 artepe.
+
+### Why some deleted entities come back (v0.4.1)
+Home Assistant integrations can register entities again after their registry entry is removed. HA Doctor now offers two **separately confirmed** actions:
+- **Poista rekisterista** / Remove from registry: removes the selected entry, then re-reads the registry. An entry still present is **not** counted as deleted.
+- **Poista kaytosta** / Disable: sets the selected entity's registry flag to disabled by user. The registry entry remains; the entity normally stops loading once the integration reloads. Use this for unwanted entities that keep coming back.
+
+Both actions require an administrator, a metadata export, an exact DELETE N or DISABLE N confirmation, and a fresh identity + state recheck. This does not delete Recorder history. Take a full Home Assistant backup first.
